@@ -1,0 +1,108 @@
+package duowei;
+
+import java.util.Scanner;
+
+public class duowei {
+	
+	private static double[][] weight;//物品的重量数组
+	private static double[] values;//物品的价值数组
+	private static int[] con;//最大可以拿的重量
+	private static int count;//物品的个数
+	private static int n;//n个约束条件
+
+	private static double nowvalues;//当前的价值
+	static double bestvalues;//目前最优装载的价值
+	private static int last;//剩余物品的价值
+
+	private static int[] now;//存放当前解
+
+	public static double star(double[][] weight2, double[] values, int[] con) {       //初始化数据成员
+	    for(int i = 0; i < count;i++) {         //初始化last，即剩余最大价格
+	    	last += values[i];
+	    }
+	    
+		now = new int[count];//存放当前解,now[6]
+	    bestvalues = 0;//初始化，目前最优装载的价值=0
+	    Back(0);//调用回溯法计算
+	    return bestvalues;   //返回目前最优装载的价值
+	}
+	
+
+	
+	public static void Back(int t) {
+	    if(t < count) {                          //t=第几个物品，t<count,小于叶结点
+	    	now[t] = 1;//存放当前解=1
+	    	last -= values[t];//剩余物品的价值-第t个物品的价值，r=6800
+	    	
+	    		for(int i = 0; i < n; i++) {
+	    			if(con[i] - weight[i][t] < 0) {
+	    				now[t] = 0;// 当前解取0，表示不取
+						break;
+	    			}
+	    		}
+	    	
+	    		if(now[t] ==1) {       //搜索左子树,表示now=1,取这个数
+	    			nowvalues += values[t];//当前的价值+物品价值
+	    			
+	    			for(int p = 0;p < n; p++) {     //容量-物品重量  100-20=80
+	    				con[p]-=weight[p][t];
+	    				}
+	    			
+	    				Back(t+1);
+	    			
+	    				nowvalues -= values[t];//恢复现场
+	    				for(int p = 0; p < n; p++) {
+	    					con[p]+=weight[p][t];
+	    					}
+	    			}
+	    	
+	    if(nowvalues + last >bestvalues) {//剪枝操作
+	    	now[t] = 0;//搜索右子树
+	        Back(t+1);
+	    	}
+	    
+	    last += values[t];//恢复现场
+	    }
+	    
+	    else {
+	    	if(nowvalues > bestvalues) {   //若当前的价值>目前最优装载的价值
+	            bestvalues = nowvalues;//当前的价值=最优价值
+	        	}
+	        return;
+	    	}
+	}
+	
+
+
+
+	public static void main(String[] args) {//测试
+	    
+		Scanner sc = new Scanner(System.in);
+		count = sc.nextInt();// 表示物体的个数
+	    n = sc.nextInt();//物品约束条件
+	    
+	    weight =  new double[n][count];//物品重量
+	    values = new double[count];//价值
+	    con = new int[n];//约束条件
+	    
+	    
+	    for(int i = 0; i < n; i++) {            //初始化，物品重量
+	    	for(int j=0;j < count;j++) {
+	    		weight[i][j] = sc.nextDouble();
+	    	}
+	    }
+	    for(int i = 0; i < count; i++) {        //物品价值
+	    	values[i] = sc.nextDouble();
+	    }
+	    for(int j = 0; j < n; j++) {            //物品约束条件
+	    	con[j] = sc.nextInt();
+        }
+	       
+	    star(weight,values,con);//重量，价值，条件
+	    System.out.println("最优装载：" +bestvalues);//打印最优装载价值
+	   
+	    }           
+	}
+
+
+
